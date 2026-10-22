@@ -1,6 +1,6 @@
 // sw.js — offline support. Cache-first for every app file.
 // Bump CACHE whenever any app file changes, or installed copies keep the old version.
-const CACHE = 'kpi-v1';
+const CACHE = 'kpi-v2';
 const FILES = [
   './',
   './index.html',

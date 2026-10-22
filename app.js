@@ -1,6 +1,6 @@
 // app.js — UI only. All math comes from formulas.js; all parsing/formatting from format.js.
 import { KPIS, KPI_BY_ID, GROUPS, getMode, calculate, defaultVariants, symbolicFormula } from './formulas.js';
-import { parseNumber, toModel, formatValue, toInputString, inputAffix, formulaWithNumbers } from './format.js';
+import { parseField, toModel, formatValue, toInputString, inputAffix, formulaWithNumbers } from './format.js';
 
 const STORE_KEY = 'kpi-calc-v1';
 const app = document.getElementById('app');
@@ -176,7 +176,7 @@ function readValues(kpi, st, mode) {
   let invalid = null;
   for (const [id, def] of Object.entries(mode.vars)) {
     if (id === st.solveFor) continue;
-    const p = parseNumber(st.inputs[id]);
+    const p = parseField(st.inputs[id], def.unit);
     const el = document.getElementById(`f-${id}`);
     if (el) el.setAttribute('aria-invalid', p.status === 'invalid' ? 'true' : 'false');
     if (p.status === 'ok') values[id] = toModel(p.value, def.unit);

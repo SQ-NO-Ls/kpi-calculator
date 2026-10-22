@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { parseNumber, toModel, formatValue, toInputString, formulaWithNumbers, inputAffix } from '../format.js';
+import { parseNumber, parseField, toModel, formatValue, toInputString, formulaWithNumbers, inputAffix } from '../format.js';
 import { KPI_BY_ID } from '../formulas.js';
 
 const ok = (s) => {
@@ -111,4 +111,17 @@ test('input affixes follow the unit', () => {
   assert.deepEqual(inputAffix('currency'), { prefix: '$', suffix: '' });
   assert.deepEqual(inputAffix('percent'), { prefix: '', suffix: '%' });
   assert.deepEqual(inputAffix('count'), { prefix: '', suffix: '' });
+});
+
+test('field parsing rejects suffixes that would mis-scale the unit', () => {
+  assert.equal(parseField('2.5%', 'percent').value, 2.5);
+  assert.equal(parseField('50k', 'currency').value, 50000);
+  assert.equal(parseField('1.2m', 'count').value, 1200000);
+  assert.equal(parseField('2m', 'number').value, 2000000);
+  assert.equal(parseField('6', 'months').value, 6);
+  for (const [s, unit] of [['5%', 'currency'], ['5%', 'count'], ['6m', 'months'], ['2k', 'years'], ['1k', 'percent'], ['3m', 'ratio']]) {
+    assert.equal(parseField(s, unit).status, 'invalid', `"${s}" as ${unit}`);
+  }
+  assert.equal(parseField('', 'currency').status, 'empty');
+  assert.equal(parseField('abc', 'currency').status, 'invalid');
 });

@@ -32,7 +32,22 @@ export function parseNumber(input) {
   if ((sign1 || sign2) === '-') value = -value;
   if (!Number.isFinite(value)) return { status: 'invalid' };
   if (Object.is(value, -0)) value = 0;
-  return { status: 'ok', value };
+  return { status: 'ok', value, scaled: Boolean(suffix), percentSign: Boolean(m[6]) };
+}
+
+// k/m/b only make sense for amounts and counts, never for percents, ratios or durations.
+const SCALABLE = new Set(['currency', 'count', 'number']);
+
+/**
+ * Parse a field's text for a specific unit. Like parseNumber, but rejects suffixes that
+ * would mis-scale the value: "5%" in a dollar field, "6m" in a months field.
+ */
+export function parseField(input, unit) {
+  const r = parseNumber(input);
+  if (r.status !== 'ok') return r;
+  if (r.percentSign && unit !== 'percent') return { status: 'invalid' };
+  if (r.scaled && !SCALABLE.has(unit)) return { status: 'invalid' };
+  return { status: 'ok', value: r.value };
 }
 
 /** Convert a parsed field value to model units (percent → decimal). The one ÷100 in the app. */

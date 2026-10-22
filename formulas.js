@@ -910,10 +910,10 @@ export function checkValue(def, value) {
   if (def.unit === 'percent') {
     if (def.max !== undefined && (value < min || value > def.max)) {
       return min < 0
-        ? `${def.label} must be between ${min * 100}% and ${def.max * 100}%.`
+        ? `${def.label} must be between \u2212${-min * 100}% and ${def.max * 100}%.`
         : `${def.label} must be between 0 and 100%.`;
     }
-    if (value < min) return min < 0 ? `${def.label} can't be below ${min * 100}%.` : `${def.label} can't be negative.`;
+    if (value < min) return min < 0 ? `${def.label} can't be below \u2212${-min * 100}%.` : `${def.label} can't be negative.`;
     return null;
   }
   if (value < min) return `${def.label} can't be negative.`;
@@ -971,7 +971,7 @@ export function calculate(kpi, variantState, solveFor, values) {
     return {
       status: 'error',
       message: min < 0
-        ? `${def.label} would be below ${min * 100}%. Check your inputs.`
+        ? `${def.label} would be below \u2212${-min * 100}%. Check your inputs.`
         : `${def.label} would be negative. Check your inputs.`,
       target,
     };
