@@ -1,6 +1,6 @@
 // sw.js — offline support. Cache-first for every app file.
 // Bump CACHE whenever any app file changes, or installed copies keep the old version.
-const CACHE = 'kpi-v2';
+const CACHE = 'kpi-v3';
 const FILES = [
   './',
   './index.html',
@@ -16,7 +16,13 @@ const FILES = [
 ];
 
 self.addEventListener('install', (event) => {
-  event.waitUntil(caches.open(CACHE).then((cache) => cache.addAll(FILES)).then(() => self.skipWaiting()));
+  // cache: 'reload' bypasses the browser's HTTP cache (GitHub Pages sends max-age=600),
+  // so a new version never gets filled with stale copies of the old files.
+  event.waitUntil(
+    caches.open(CACHE)
+      .then((cache) => cache.addAll(FILES.map((f) => new Request(f, { cache: 'reload' }))))
+      .then(() => self.skipWaiting()),
+  );
 });
 
 self.addEventListener('activate', (event) => {
